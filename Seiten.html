@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>晴天市山岳観光協会 公式ポータルサイト - SEITEN MOUNTAIN RESORT</title>
+  <style>
+    /* 全体リセット */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 端末画面全体の背景（下部3分の1の余白部分） */
+    body {
+      background-color: #9c9c94;
+      font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", sans-serif;
+      font-size: 11px; /* 12px程度、過密な印象を与えるフォントサイズ */
+      line-height: 1.45;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden; /* 外側全体のスクロールを防ぎ、上に固定 */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* 上寄せ配置 */
+      align-items: center;
+    }
+
+    /* 横幅ぴったり（100vw）、画面の上部3分の2（66.7vh）に固定されたフレーム */
+    #phone-container {
+      width: 100vw;
+      height: 66.7vh;
+      background-color: #d6d7ce; /* 高山を連想させる薄いセージグレーの背景色 */
+      color: #6b6e63; /* 背景と同化気味だが読める低〜中コントラスト */
+      border-bottom: 3px solid #84877b;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ヘッダー上部の架空サイト注意喚起バー */
+    .fictional-notice-bar {
+      background-color: #c4c6bc;
+      color: #616458;
+      font-size: 8px;
+      line-height: 1.3;
+      padding: 3px 6px;
+      text-align: center;
+      border-bottom: 1px dashed #abae9f;
+      letter-spacing: -0.2px;
+    }
+
+    /* PCポータル風のヘッダー */
+    header {
+      background-color: #cbccc2;
+      border-bottom: 2px solid #b2b4a8;
+      padding: 5px 8px 3px 8px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .header-sub-ja {
+      font-size: 9px;
+      font-weight: bold;
+      color: #55584e;
+    }
+    .header-sub-en {
+      font-size: 7.5px;
+      letter-spacing: 0.5px;
+      color: #838679;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .header-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: #494c42;
+      line-height: 1.2;
+    }
+    .header-lang-bar {
+      font-size: 8px;
+      margin-top: 2px;
+      color: #7a7d71;
+    }
+
+    /* PC向けGUIを無理やりスマホ幅に落とし込んだ横並びナビゲーション */
+    nav.desktop-style-nav {
+      background-color: #bec0b5;
+      display: flex;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-bottom: 1px solid #a3a69a;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    nav.desktop-style-nav::-webkit-scrollbar {
+      display: none;
+    }
+    nav.desktop-style-nav button {
+      flex: 1 0 auto;
+      background: #bec0b5;
+      border: none;
+      border-right: 1px solid #acad9f;
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #52554a;
+      text-align: center;
+      cursor: pointer;
+    }
+    nav.desktop-style-nav button:active {
+      background-color: #adb0a3;
+    }
+
+    /* 上部3分の2領域内でスクロールする内部コンテナ */
+    #scrollable-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 
+     * 初期ポップアップ（山小屋カフェの宣伝）
+     * ×印なし・3秒間必ず表示
+     */
+    #ad-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.5s ease;
+      cursor: default;
+    }
+    .ad-card {
+      width: 270px;
+      background: #e5e6dc;
+      border: 3px double #9da091;
+      padding: 16px 14px 14px 14px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .ad-badge {
+      font-size: 8.5px;
+      letter-spacing: 0.5px;
+      color: #7b7e71;
+    }
+    .ad-shop-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #4a4d43;
+      margin: 6px 0;
+    }
+    .ad-img-dummy {
+      width: 100%;
+      height: 95px;
+      background: linear-gradient(135deg, #a7aa9b, #7f8273);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #e5e6dc;
+      font-size: 9.5px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    /* ページ表示セクション */
+    .page-section {
+      display: none;
+      padding: 8px 10px 20px 10px;
+    }
+    .page-section.active {
+      display: block;
+    }
+
+    /* コンポーネント */
+    h2.section-header {
+      font-size: 11px;
+      font-weight: bold;
+      color: #4b4e43;
+      border-left: 4px solid #777a6d;
+      padding-left: 5px;
+      margin: 10px 0 2px 0;
+    }
+    .caption-ja {
+      font-size: 9px;
+      color: #616458;
+      display: block;
+      margin-top: 1px;
+    }
+    .caption-en {
+      font-size: 8.5px;
+      color: #888b7e;
+      display: block;
+      margin-bottom: 6px;
+    }
+    p {
+      margin-bottom: 6px;
+      text-align: justify;
+      letter-spacing: -0.2px;
+    }
+    .p-ja {
+      color: #5c5f53;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .p-en {
+      color: #7e8174;
+      font-size: 10px;
+      margin-bottom: 6px;
+    }
+
+    .news-box {
+      background-color: #cdcfc4;
+      border: 1px solid #b4b6aa;
+      padding: 6px;
+      margin-bottom: 10px;
+    }
+    .news-item {
+      border-bottom: 1px dashed #aeb0a4;
+      padding: 5px 0;
+    }
+    .news-item:last-child {
+      border-bottom: none;
+    }
+    .news-date {
+      font-size: 8.5px;
+      font-weight: bold;
+      color: #55584b;
+    }
+
+    .card-snippet {
+      background-color: #cecfc5;
+      border: 1px solid #b6b8ac;
+      padding: 6px;
+      margin-bottom: 6px;
+    }
+    .card-title-ja {
+      font-weight: bold;
+      font-size: 11px;
+      color: #43463b;
+    }
+    .card-title-en {
+      font-size: 9px;
+      color: #76796c;
+      margin-bottom: 3px;
+    }
+
+    /* 観光情報サブメニュー一覧（5カテゴリ） */
+    .subcat-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .subcat-btn {
+      background: #c7c9bf;
+      border: 1px solid #a4a79a;
+      color: #4a4d42;
+      padding: 6px 8px;
+      font-size: 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .subcat-btn .ja {
+      font-weight: bold;
+      font-size: 10px;
+      color: #46493f;
+    }
+    .subcat-btn .en {
+      font-size: 8.5px;
+      color: #74776b;
+    }
+
+    /* 戻るボタン */
+    .btn-back {
+      font-size: 9px;
+      padding: 3px 6px;
+      background: #c3c5bb;
+      border: 1px solid #94978a;
+      color: #4d5045;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    /* フッター */
+    footer {
+      margin-top: auto;
+      background: #b5b7ac;
+      color: #585b4f;
+      padding: 10px 8px;
+      font-size: 8.5px;
+      text-align: center;
+      border-top: 1px solid #9ea194;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- スマートフォン画面上部3分の2コンテナ（横幅100%） -->
+  <div id="phone-container">
+
+    <!-- 1. 開いた直後のポップアップ（×印なし・3秒間提示） -->
+    <div id="ad-popup">
+      <div class="ad-card">
+        <div class="ad-badge">【協賛店おすすめ情報】 / SPONSORED SPECIAL OFFER</div>
+        <div class="ad-shop-name">晴天高嶺山荘 雲上カフェテラス<br><span style="font-size:11px; font-weight:normal;">Seiten Peak Lodge & Cloud Cafe</span></div>
+        <div class="ad-img-dummy">
+          <span>［ 写真：白樺と雲海を望む薪ストーブカフェ ］</span>
+          <span style="font-size:8px;">[ PHOTO: FIREPLACE & SEA OF CLOUDS ]</span>
+        </div>
+        <p class="p-ja" style="font-size: 9px; text-align: center; margin: 0;">
+          標高2,100mの展望デッキで楽しむ淹れたて湧水珈琲と自家製ベリーパイ。画面提示でホットドリンク1杯無料。
+        </p>
+        <p class="p-en" style="font-size: 8px; text-align: center; margin: 0;">
+          Savor freshly brewed spring-water coffee at an altitude of 2,100m overlooking sweeping cloud seas. Present this screen for a complimentary hot herbal infusion.
+        </p>
+      </div>
+    </div>
+
+    <!-- 2. 注意喚起バー ＆ 無理やりスマホ化されたPC風ヘッダー -->
+    <header>
+      <div class="fictional-notice-bar">
+        【重要なお知らせ】当サイトは架空の観光情報Webサイトです。実在の都市・団体・地域とは一切関係ありません。<br>
+        <em>* NOTICE: This is a fictional demonstration website. All destinations, routes, and services are purely imaginary.</em>
+      </div>
+
+      <div class="header-sub-ja" style="margin-top: 4px;">晴天市 高原・連峰山岳観光課 公式ポータル</div>
+      <div class="header-sub-en">Seiten City Highland & Alpine Heritage Tourism Board</div>
+      <div class="header-title">SEITEN ALPINE RESORT 晴天市山岳案内</div>
+      <div class="header-lang-bar">多言語対応 / Languages: 日本語 (JA) | English (EN) | 簡体中文 (CN) | 繁體中文 (TW) | 韓国語 (KR)</div>
+    </header>
+
+    <!-- PC向けGUIを無理やりスマホ幅に落とし込んだ横並びナビゲーションボタン -->
+    <nav class="desktop-style-nav">
+      <button onclick="navigateTo('home')">トップ<br>HOME</button>
+      <button onclick="navigateTo('tourism-hub')">観光情報<br>TOURISM</button>
+      <button onclick="navigateTo('events')">イベント<br>EVENTS</button>
+      <button onclick="navigateTo('access')">アクセス<br>ACCESS</button>
+    </nav>
+
+    <!-- 上部3分の2領域内で本文がスクロールするコンテンツ部 -->
+    <div id="scrollable-content">
+
+      <!-- ==================== HOME PAGE ==================== -->
+      <div id="page-home" class="page-section active">
+        <h2 class="section-header">お知らせ / LATEST NOTICES</h2>
+        <span class="caption-ja">市山岳観光課および各登山口管理事務所からの最新情報</span>
+        <span class="caption-en">Official mountain safety bulletins and municipal transit updates</span>
+        
+        <div class="news-box">
+          <div class="news-item">
+            <div class="news-date">2026.09.25 | トレッキングルート点検情報 (Trail Conditions)</div>
+            <p class="p-ja">晴天連峰主峰（標高2,480m）への登山道は秋の降雨による崩落箇所等の復旧が完了し、全線開通いたしました。防寒具を持参の上ご入山ください。</p>
+            <p class="p-en">Summit alpine routes leading toward Mount Seiten Peak are now completely accessible following trail repairs. Appropriate heavy winter alpine attire is strongly advised.</p>
+          </div>
+          <div class="news-item">
+            <div class="news-date">2026.09.18 | 山岳シャトルバス運行ダイヤ (Shuttle Timetable)</div>
+            <p class="p-ja">秋の紅葉シーズンに伴い、峰霧登山口と雲海高原パノラマ駅を結ぶ低公害ハイブリッドシャトルバスの増便運行を開始します。</p>
+            <p class="p-en">Eco-friendly hybrid shuttle coaches connecting Minekiri Base Terminal and Cloud Panoramic Depot are running on expanded autumn seasonal timetables.</p>
+          </div>
+        </div>
+
+        <h2 class="section-header">おすすめ山岳観光情報 / RECOMMENDED HIGHLIGHTS</h2>
+        <span class="caption-ja">晴天市が誇る雄大な山岳・高原エリアの抜粋案内</span>
+        <span class="caption-en">Curated excerpts highlighting premier alpine vistas and outdoor culture</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">1. 晴天連峰雲海テラス ＆ 断崖展望台 [観光]</div>
+          <div class="card-title-en">Seiten Peak Sea-of-Clouds Terrace & Alpine Ridge [Sightseeing]</div>
+          <p class="p-ja">ロープウェイで登る標高1,900mの絶景デッキ。晴天率の高い当市ならではの澄み渡る大パノラマと、足下に広がる幻想的な雲海を一望できます。</p>
+          <p class="p-en">A dramatic observation overlook accessible via high-altitude ropeway, providing sweeping 360-degree vistas above blanketed sea of morning clouds.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">2. 白根鉱泉 秘湯山岳ロッジ [宿泊]</div>
+          <div class="card-title-en">Shirane Mineral Springs Historic Mountain Chalet [Accommodation]</div>
+          <p class="p-ja">ブナの原生林に包まれた自家源泉掛け流しの硫黄温泉宿。夜は満天の天の川を望む露天風呂と、薪暖炉を囲む静謐な時間をお過ごしいただけます。</p>
+          <p class="p-en">Secluded geothermal mountain inn tucked within ancient beech woodlands. Features naturally bubbling mineral hot springs and cozy fireplace cabins.</p>
+        </div>
+      </div>
+
+      <!-- ==================== TOURISM HUB (5 CATEGORIES) ==================== -->
+      <div id="page-tourism-hub" class="page-section">
+        <h2 class="section-header">観光カテゴリー選択 / TOURISM DIRECTORY</h2>
+        <span class="caption-ja">ご希望のカテゴリーを選択し、詳細な山岳観光ガイドをご覧ください</span>
+        <span class="caption-en">Select an interest to explore specialized regional catalogs & mountain itineraries</span>
+
+        <p class="p-ja">晴天市は標高差2,000mを誇る自然の宝庫です。目的に合わせて以下の5つのカテゴリーより詳細ページへお進みください。</p>
+        <p class="p-en">Discover multifaceted highland nature across our mountainous county. Select one of the five categorized gateways below to proceed.</p>
+
+        <div class="subcat-grid">
+          <button class="subcat-btn" onclick="navigateTo('cat-sightseeing')">
+            <div>
+              <span class="ja">1. 観光（名所・景勝地・展望台［3施設］）</span><br>
+              <span class="en">Sightseeing: Peaks, water rapids, viewpoints [3 spots]</span>
+            </div>
+            <span>&gt;</span>
+          </button>
+          <button class="subcat-btn" onclick="navigateTo('cat-stay')">
+            <div>
+              <span class="ja">2. 宿泊（山岳リゾート・秘湯ロッジ［2施設］）</span><br>
+              <span class="en">Accommodation: Alpine chalets, geothermal lodges [2 spots]</span>
+            </div>
+            <span>&gt;</span>
+          </button>
+          <button class="subcat-btn" onclick="navigateTo('cat-experience')">
+            <div>
+              <span class="ja">3. 体験（トレッキング・木工アウトドア［2施設］）</span><br>
+              <span class="en">Experience: Guided hikes, woodcraft, river sports [2 spots]</span>
+            </div>
+            <span>&gt;</span>
+          </button>
+          <button class="subcat-btn" onclick="navigateTo('cat-shopping')">
+            <div>
+              <span class="ja">4. ショッピング（山菜加工・高原マルシェ［1施設］）</span><br>
+              <span class="en">Shopping: Mountain herbs, cheeses, artisanal gifts [1 spot]</span>
+            </div>
+            <span>&gt;</span>
+          </button>
+          <button class="subcat-btn" onclick="navigateTo('cat-gourmet')">
+            <div>
+              <span class="ja">5. グルメ（ジビエ・十割蕎麦［2施設］）</span><br>
+              <span class="en">Gourmet: Venison hotpots, buckwheat soba, spring cider [2 spots]</span>
+            </div>
+            <span>&gt;</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 観光サブカテゴリ各ページ -->
+      <!-- 1. 観光（3施設） -->
+      <div id="page-cat-sightseeing" class="page-section">
+        <h2 class="section-header">観光 / SIGHTSEEING (3施設)</h2>
+        <span class="caption-ja">名所・渓谷・パノラマ絶景ポイント</span>
+        <span class="caption-en">Sublime peaks, glacier ravines, and high-altitude reserves</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">1. 晴天峡谷 ＆ 白糸の大瀑布</div>
+          <div class="card-title-en">Seiten Gorge & Shiraito Waterfall</div>
+          <p class="p-ja">国の名勝に指定された落差80mの大瀑布。柱状節理の奇岩と澄み切った清流が織りなすダイナミックな景観を、整備された木道から手軽に鑑賞できます。</p>
+          <p class="p-en">Designated national scenic monument featuring an 80m glacial waterfall amidst dramatic basalt cliffs, fully viewable along scenic timber walking paths.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">2. 晴天連峰雲海テラス ＆ 断崖展望台</div>
+          <div class="card-title-en">Seiten Peak Sea-of-Clouds Terrace & Observation Ridge</div>
+          <p class="p-ja">ロープウェイで登る標高1,900mの絶景デッキ。早朝には一面に広がる幻想的な雲海を、日中は遠くアルプス連峰まで届く大パノラマを一望できます。</p>
+          <p class="p-en">High-altitude terrace accessible via panoramic cable car, offering breathtaking sunrise views over rolling clouds and 360-degree mountain vistas.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">3. 翠緑池 原生林木道エコパーク</div>
+          <div class="card-title-en">Suiryoku Emerald Lake & Ancient Forest Eco-Park</div>
+          <p class="p-ja">コバルトブルーに輝く神秘的な火山湖。樹齢数百年を数えるブナやシラビソの原生林に囲まれ、高山植物や希少な野鳥の観察スポットとして有名です。</p>
+
+          <p class="p-en">Mystic cobalt-blue volcanic lake cradled within ancient virgin woods, renowned for rare subalpine wild flora and migratory bird watching.</p>
+        </div>
+
+        <button class="btn-back" onclick="navigateTo('tourism-hub')">← 観光メニューへ戻る / Back to Tourism Menu</button>
+      </div>
+
+      <!-- 2. 宿泊（2施設） -->
+      <div id="page-cat-stay" class="page-section">
+        <h2 class="section-header">宿泊 / ACCOMMODATION (2施設)</h2>
+        <span class="caption-ja">高原リゾートホテル、天然温泉の絶景宿</span>
+        <span class="caption-en">Alpine resort hotels and secluded geothermal spring chalets</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">1. 白根鉱泉 秘湯山岳ロッジ</div>
+          <div class="card-title-en">Shirane Mineral Springs Historic Mountain Chalet</div>
+          <p class="p-ja">ブナの原生林に包まれた自家源泉掛け流しの硫黄温泉宿。夜は満天の天の川を望む露天風呂と、薪暖炉を囲む静謐な時間をお過ごしいただけます。</p>
+          <p class="p-en">Secluded geothermal mountain inn tucked within ancient beech woodlands. Features naturally bubbling mineral hot springs and cozy fireplace lounges.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">2. 白樺高原 グランドパノラマリゾート</div>
+          <div class="card-title-en">Shirakaba Highland Grand Panorama Resort & Spa</div>
+          <p class="p-ja">標高1,500mの高原に位置するラグジュアリーホテル。全室から連峰の夕景を望むことができ、地産地消のフレンチコースと温水スパが魅力です。</p>
+          <p class="p-en">Luxury plateau resort featuring sweeping mountain sunset views from every suite, paired with farm-to-table dining and heated mineral infinity pools.</p>
+        </div>
+
+        <button class="btn-back" onclick="navigateTo('tourism-hub')">← 観光メニューへ戻る / Back to Tourism Menu</button>
+      </div>
+
+      <!-- 3. 体験（2施設） -->
+      <div id="page-cat-experience" class="page-section">
+        <h2 class="section-header">体験 / ACTIVITIES & EXPERIENCES (2施設)</h2>
+        <span class="caption-ja">ガイドトレッキング、白樺木工クラフト</span>
+        <span class="caption-en">Guided trekking tours and traditional birchwood craft workshops</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">1. 晴天山岳ガイド協会 トレッキング＆カヤック</div>
+          <div class="card-title-en">Seiten Alpine Guide Association Treks & Lake Kayaking</div>
+          <p class="p-ja">公認山岳ガイドが同行する初心者向け高山トレッキング講習や、雪解け水が満ちる清涼な山岳湖でのネイチャーカヤック体験を連日開催しています。</p>
+          <p class="p-en">Certified naturalists escort beginner day treks along subalpine ridges and guide calm water kayaking excursions across clear mountain lakes.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">2. 雲嶺工房 白樺ウッドクラフト体験</div>
+          <div class="card-title-en">Unrei Woodcraft Atelier Birchwork Experience</div>
+          <p class="p-ja">晴天市特産の白樺材を用い、職人の指導のもと自分だけの木製スプーンや器を削り出す人気ワークショップ。完成した作品はお土産として持ち帰れます。</p>
+          <p class="p-en">Hands-on artisan workshop carving custom wooden spoons and cups using native white birchwood, guided by local master woodcrafters.</p>
+        </div>
+
+        <button class="btn-back" onclick="navigateTo('tourism-hub')">← 観光メニューへ戻る / Back to Tourism Menu</button>
+      </div>
+
+      <!-- 4. ショッピング（1施設） -->
+      <div id="page-cat-shopping" class="page-section">
+        <h2 class="section-header">ショッピング / SHOPPING (1施設)</h2>
+        <span class="caption-ja">山菜加工品、高原チーズ、特産クラフト</span>
+        <span class="caption-en">Mountain produce, artisan cheeses, and official gear</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">1. 晴天中央駅前 嶺々（ねね）マルシェ</div>
+          <div class="card-title-en">Seiten Central Station Nene Mountain Farmers Market</div>
+          <p class="p-ja">朝摘みの高冷地野菜や野生ハーブティー、自家製栗ジャムや洞窟熟成チーズが並ぶ総合物産館。晴天山岳会限定のチタンマグ等も販売しています。</p>
+          <p class="p-en">Central market offering freshly foraged wild herbs, cave-aged mountain cheeses, homemade berry preserves, and official titanium camping mugs.</p>
+        </div>
+
+        <button class="btn-back" onclick="navigateTo('tourism-hub')">← 観光メニューへ戻る / Back to Tourism Menu</button>
+      </div>
+
+      <!-- 5. グルメ（2施設） -->
+      <div id="page-cat-gourmet" class="page-section">
+        <h2 class="section-header">グルメ / GOURMET & DINING (2施設)</h2>
+        <span class="caption-ja">手打ち十割蕎麦、伝統山岳ジビエ料理</span>
+        <span class="caption-en">Buckwheat soba noodles and authentic mountain game specialties</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">1. 湧水手打ち蕎麦処「晴風庵（せいふうあん）」</div>
+          <div class="card-title-en">Seifuan Pure Spring Water Soba Restaurant</div>
+          <p class="p-ja">名水百選「晴天湧水」で締める挽きたての十割高原そば。香り高い蕎麦と、収穫したてのサクサク山菜天ぷらの組み合わせが絶品です。</p>
+          <p class="p-en">Hand-kneaded 100% buckwheat soba noodles prepared using icy mountain spring water, served alongside crispy wild forest tempura.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">2. 山麓ジビエ食堂「岩魚と鹿の囲炉裏」</div>
+          <div class="card-title-en">Irori Mountain Hearth Game & River Fish Dining</div>
+          <p class="p-ja">じっくり赤ワインと香草で煮込んだ晴天鹿肉の山岳シチューや、清流の岩魚を囲炉裏の炭火で塩焼きにする本格的な地場郷土料理店です。</p>
+          <p class="p-en">Rustic dining hall specializing in slow-simmered venison ragout and whole stream trout charcoal-roasted around traditional sunken hearths.</p>
+        </div>
+
+        <button class="btn-back" onclick="navigateTo('tourism-hub')">← 観光メニューへ戻る / Back to Tourism Menu</button>
+      </div>
+
+      <!-- ==================== EVENTS PAGE ==================== -->
+      <div id="page-events" class="page-section">
+        <h2 class="section-header">イベント情報 / ANNUAL EVENTS</h2>
+        <span class="caption-ja">山開き、紅葉まつり、高原星空観察会など</span>
+        <span class="caption-en">Seasonal alpine festivals, star-gazing forums, and autumn celebrations</span>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">晴天連峰山開き安全祈願祭（6月上旬）</div>
+          <div class="card-title-en">Annual Alpine Opening & Safety Ceremony (Early June)</div>
+          <p class="p-ja">本格的な夏山シーズンの幕開けを告げる伝統神事。山伏によるほら貝の合図とともに登山道テープカットが行われます。</p>
+          <p class="p-en">Traditional rites held at the central trailhead marking the formal start of summer mountaineering expeditions with safety prayers.</p>
+        </div>
+
+        <div class="card-snippet">
+          <div class="card-title-ja">白樺高原 紅葉とクラフトマーケット（10月中旬）</div>
+          <div class="card-title-en">Shirakaba Autumn Foliage & Craft Market (Mid October)</div>
+          <p class="p-ja">黄金色に染まる白樺林の広場に、全国から木工作家やガラス工芸作家が集合。山岳音楽の生演奏やホットワインの屋台で賑わいます。</p>
+          <p class="p-en">Dozens of woodworking artisans and glassmakers assemble in golden birch groves, accompanied by acoustic music and mulled spiced wine.</p>
+        </div>
+      </div>
+
+      <!-- ==================== ACCESS PAGE (架空の地名) ==================== -->
+      <div id="page-access" class="page-section">
+        <h2 class="section-header">アクセス案内 / HOW TO ARRIVE</h2>
+        <span class="caption-ja">鉄道、自動車、高原バスによる交通ルート</span>
+        <span class="caption-en">Transit rail transfers, mountain highway passes, and highland express buses</span>
+
+        <p class="p-ja"><strong>■ 鉄道をご利用の場合 (By High-Altitude Railway):</strong><br>
+        広域山岳鉄道「雲嶺本線（うんれいほんせん）」にて<strong>峰霧中央駅 (Minekiri-Chuo Station)</strong>下車。東口高原バスターミナル3番乗り場より「晴天高嶺線」シャトルバスで約30分、「晴天山岳ベースキャンプ前」下車。</p>
+        <p class="p-en">Take the Unrei Alpine Line directly to <strong>Minekiri-Chuo Station</strong>. Board regional highland shuttle bus route #3 bound for Seiten Basecamp Depot (approx. 30 min).</p>
+
+        <p class="p-ja"><strong>■ お車をご利用の場合 (By Automobile & Expressway):</strong><br>
+        中央神岳自動車道 <strong>白樺ジャンクション</strong>より「霧降スカイライン」を経由、<strong>風鳴峠インターチェンジ (Kazenari-Toge I.C.)</strong> 出口より約18km（通常時約25分）。冬季は滑り止め装備（スタッドレスタイヤまたはタイヤチェーン）が必須となります。</p>
+        <p class="p-en">From Shinkaku Expressway via Shirakaba Junction, take <strong>Kazenari-Toge Interchange</strong> via the Kirifuri Skyline highway for 18 km. Winter snow tires or traction chains are strictly required during cold seasons.</p>
+
+        <p class="p-ja"><strong>■ 高速直行バスをご利用の場合 (By Direct Alpine Express Bus):</strong><br>
+        主要ターミナルより運行中の季節運行高速バス「アルプスライナー晴天号」にて、乗り換えなしで「白樺高原パノラマ前」へ直行可能（要事前予約制）。</p>
+        <p class="p-en">Seasonal nonstop express motorcoaches run daily linking metropolitan transit depots directly to Shirakaba Plateau Terminal (reservations mandatory).</p>
+      </div>
+
+      <!-- フッター -->
+      <footer>
+        <p class="p-ja" style="margin-bottom: 2px; font-size: 8px;">&copy; 2026 晴天市山岳観光推進委員会 無断転載を禁じます。</p>
+        <p class="p-en" style="margin-bottom: 2px; font-size: 7.5px;">&copy; 2026 SEITEN CITY ALPINE TOURISM COMMITTEE. ALL RIGHTS RESERVED.</p>
+        <p style="font-size: 7.5px; color: #7a7d71;">
+          架空所在地：晴天市峰霧高原連峰通り808番地 / Telephone: +81-00-7777-0922<br>
+          Official Alpine Bureau, 808 Minekiri Highland Way, Seiten City (Purely Fictional)
+        </p>
+      </footer>
+
+    </div><!-- /#scrollable-content -->
+
+  </div><!-- /#phone-container -->
+
+  <script>
+    // ポップアップをちょうど3秒間（3000ms）提示した後に自動フェードアウト
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const popup = document.getElementById('ad-popup');
+        if (popup) {
+          popup.style.opacity = '0';
+          setTimeout(() => {
+            popup.style.display = 'none';
+          }, 500); // フェードアウト演出（0.5秒）
+        }
+      }, 3000); // 3.0秒提示
+    });
+
+    // 擬似ページ遷移ロジック（PC風ナビゲーション）
+    function navigateTo(pageId) {
+      const pages = document.querySelectorAll('.page-section');
+      pages.forEach(p => p.classList.remove('active'));
+
+      const targetPage = document.getElementById('page-' + pageId);
+      if (targetPage) {
+        targetPage.classList.add('active');
+        const scrollArea = document.getElementById('scrollable-content');
+        if (scrollArea) scrollArea.scrollTop = 0;
+      }
+    }
+  </script>
+</body>
+</html>
